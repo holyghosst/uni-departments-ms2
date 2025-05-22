@@ -1,3 +1,13 @@
+## 1. UI
+UI with some dummy data has been implemented so far
+
+To run locally:
+```
+cd uni-departments-m2
+npm install
+npm run dev
+```
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
