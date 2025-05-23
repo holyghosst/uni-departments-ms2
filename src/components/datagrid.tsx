@@ -21,6 +21,12 @@ const TableDataGrid: React.FC<TableDataGridProps> = ({ columns, rows }) => {
         }}
         checkboxSelection
         disableRowSelectionOnClick
+        getRowId={(row) =>
+          row.id ??
+          row.employee_id ??
+          row.matriculation_number ??
+          `${row.course_id}-${row.student_id}`
+        }
       />
     </Box>
   );

@@ -1,26 +1,23 @@
 import React, { useState } from 'react';
 import SearchAppBar from './components/navbar';
 import TableDataGrid from './components/datagrid';
-import { mockTables } from './data/datastore';
-import { type GridColDef } from '@mui/x-data-grid';
-
-type RowData = {
-  [key: string]: any;
-}
+import { tableColumns } from './data/columns';
+import { tableRows } from './data/rows';
 
 export default function App() {
-  const [selectedTable, setSelectedTable] = useState<string>('students');
+  const [selectedTable, setSelectedTable] = useState<string>('Student');
 
   const handleTableChange = (tableName: string) => {
     setSelectedTable(tableName);
   };
 
-  const { columns, rows }: { columns: GridColDef[]; rows: RowData[] } = mockTables[selectedTable];
+  const columns = tableColumns[selectedTable];
+  const rows = tableRows[selectedTable];
 
   return (
     <>
       <SearchAppBar
-        tableNames={Object.keys(mockTables) as string[]}
+        tableNames={Object.keys(tableColumns) as string[]}
         onTableSelect={handleTableChange}
         currentTitle={selectedTable.toUpperCase()}
       />
