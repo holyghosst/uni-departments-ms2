@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import SearchAppBar from './components/navbar';
 import TableDataGrid from './components/datagrid';
 import { tableColumns } from './data/columns';
