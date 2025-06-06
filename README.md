@@ -1,9 +1,21 @@
-## 1. UI
-UI with some dummy data has been implemented so far
+## 1. Environment Set Up
+Both front- and backend use .env files for connection data. Use provided .env.template files to create .env files and set up connection data
+
+## 2. Frontend
+UI with axios that uses api calls to fetch tables data from backend
 
 To run locally:
 ```
-cd uni-departments-m2
+cd uni-departments-m2/frontend
+npm install
+npm run dev
+```
+## 3. Backend
+Backend that creates a connection pool with a MariaDB database. Exposes APIs for fetching table data. Setup a database according to the task requirments and provide correct connection data in the .env file
+
+To run locally:
+```
+cd uni-departments-m2/backend
 npm install
 npm run dev
 ```
