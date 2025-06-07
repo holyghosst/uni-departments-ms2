@@ -3,6 +3,7 @@ import axios from 'axios';
 import TableDataGrid from './components/datagrid';
 import { tableColumns } from './data/columns';
 import Navbar from './components/navbar';
+import { Box } from '@mui/material';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -47,14 +48,16 @@ export default function App() {
   };
 
   return (
-    <>
+    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar
         tableNames={Object.keys(tableColumns)}
         onTableSelect={handleTableChange}
         onImportClick={importTables}
         currentTitle={selectedTable.toUpperCase()}
       />
-      <TableDataGrid columns={columns} rows={rows} loading={loading} onImportClick={importTables} />
-    </>
+      <Box sx={{ flexGrow: 1 }}>
+        <TableDataGrid columns={columns} rows={rows} loading={loading} onImportClick={importTables} />
+      </Box>
+    </Box>
   );
 }

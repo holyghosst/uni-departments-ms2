@@ -40,63 +40,62 @@ const Navbar: React.FC<SearchAppBarProps> = ({
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ mr: 2, textTransform: 'uppercase' }}>
-            University DB
-          </Typography>
-          <Button
-            ref={buttonRef}
-            variant="text"
-            color="inherit"
-            onClick={handleClick}
-            endIcon={<ArrowDropDownIcon />}
-            sx={{
-              textTransform: 'uppercase',
-              color: 'white',
-              borderRadius: 1,
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-              minWidth: 180,
-            }}
-          >
-            {currentTitle}
-          </Button>
-          <Box sx={{ flexGrow: 1 }} />
-          <Button
-            variant="outlined"
-            color="inherit"
-            startIcon={<UploadFileIcon />}
-            sx={{ color: 'white', borderColor: 'white' }}
-            onClick={onImportClick}
-          >
-            Import
-          </Button>
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={() => handleClose()}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            PaperProps={{
-              sx: {
-                width: buttonRef.current?.offsetWidth || 180,
-              },
-            }}
-          >
-            {tableNames.map((name) => (
-              <MenuItem
-                key={name}
-                onClick={() => handleClose(name)}
-                sx={{ textTransform: 'uppercase' }}
-              >
-                {name}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Toolbar>
-      </AppBar>
-    </Box>
+
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" sx={{ mr: 2, textTransform: 'uppercase' }}>
+          University DB
+        </Typography>
+        <Button
+          ref={buttonRef}
+          variant="text"
+          color="inherit"
+          onClick={handleClick}
+          endIcon={<ArrowDropDownIcon />}
+          sx={{
+            textTransform: 'uppercase',
+            color: 'white',
+            borderRadius: 1,
+            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+            minWidth: 180,
+          }}
+        >
+          {currentTitle}
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Button
+          variant="outlined"
+          color="inherit"
+          startIcon={<UploadFileIcon />}
+          sx={{ color: 'white', borderColor: 'white' }}
+          onClick={onImportClick}
+        >
+          Import
+        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={() => handleClose()}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+          PaperProps={{
+            sx: {
+              width: buttonRef.current?.offsetWidth || 180,
+            },
+          }}
+        >
+          {tableNames.map((name) => (
+            <MenuItem
+              key={name}
+              onClick={() => handleClose(name)}
+              sx={{ textTransform: 'uppercase' }}
+            >
+              {name}
+            </MenuItem>
+          ))}
+        </Menu>
+      </Toolbar>
+    </AppBar>
   );
 };
 

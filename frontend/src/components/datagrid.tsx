@@ -12,13 +12,13 @@ interface TableDataGridProps {
 
 const TableDataGrid: React.FC<TableDataGridProps> = ({ columns, rows, loading, onImportClick }) => {
   return (
-    <Box sx={{ height: 400, width: '100%' }}>
+    <Box sx={{ height: "100%", width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
         loading={loading}
         disableRowSelectionOnClick
-        pageSizeOptions={[5]}
+        pageSizeOptions={[5, 10, 20]}
         initialState={{
           pagination: {
             paginationModel: { pageSize: 5 },
