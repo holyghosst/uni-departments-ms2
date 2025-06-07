@@ -40,7 +40,6 @@ const Navbar: React.FC<SearchAppBarProps> = ({
   };
 
   return (
-
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" sx={{ mr: 2, textTransform: 'uppercase' }}>
