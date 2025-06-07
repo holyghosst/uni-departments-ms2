@@ -54,7 +54,7 @@ export default function App() {
         onImportClick={importTables}
         currentTitle={selectedTable.toUpperCase()}
       />
-      <TableDataGrid columns={columns} rows={rows} loading={loading} />
+      <TableDataGrid columns={columns} rows={rows} loading={loading} onImportClick={importTables} />
     </>
   );
 }
