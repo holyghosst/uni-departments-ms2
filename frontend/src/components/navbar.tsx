@@ -14,12 +14,14 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 interface SearchAppBarProps {
   tableNames: string[];
   onTableSelect: (name: string) => void;
+  onImportClick: () => void;
   currentTitle: string;
 }
 
-const SearchAppBar: React.FC<SearchAppBarProps> = ({
+const Navbar: React.FC<SearchAppBarProps> = ({
   tableNames,
   onTableSelect,
+  onImportClick,
   currentTitle,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -66,6 +68,7 @@ const SearchAppBar: React.FC<SearchAppBarProps> = ({
             color="inherit"
             startIcon={<UploadFileIcon />}
             sx={{ color: 'white', borderColor: 'white' }}
+            onClick={onImportClick}
           >
             Import
           </Button>
@@ -97,4 +100,4 @@ const SearchAppBar: React.FC<SearchAppBarProps> = ({
   );
 };
 
-export default SearchAppBar;
+export default Navbar;
