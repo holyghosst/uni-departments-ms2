@@ -16,7 +16,7 @@ export default function App() {
   const fetchTableData = async (tableName: string) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/api/${tableName}`);
+      const res = await axios.get(`${API_URL}/api/tables/${tableName}`);
       setRows(res.data);
     } catch (err) {
       console.error(`Failed to fetch data for ${tableName}`, err);
@@ -28,7 +28,7 @@ export default function App() {
   const importTables = async () => {
     try {
       console.log('Importing tables...');
-      const res = await axios.post(`${API_URL}/api/importTables`);
+      const res = await axios.post(`${API_URL}/api/tables`);
       console.log(res.data);
       if (res.status === 200) {
         await fetchTableData(selectedTable);

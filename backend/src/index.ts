@@ -2,16 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import tableRoutes from './routes/tableRoutes';
 import dotenv from 'dotenv';
-import { importTables } from './controllers/importController';
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json());  
 
-app.use('/api', tableRoutes);
-app.post('/api/importTables', importTables);
+app.use('/api/tables', tableRoutes);
 
 const HOST = process.env.HOST || 'localhost';
 const PORT = Number(process.env.PORT) || 5000;
