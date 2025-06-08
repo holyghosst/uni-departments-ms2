@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Department } from "../models/department";
+import { Department } from "../models/models";
 
 export const generateDepartments = (count: number): Department[] => {
     const departments: Department[] = [];

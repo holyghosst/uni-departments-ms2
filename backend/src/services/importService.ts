@@ -1,12 +1,12 @@
-import { NUMBER_OF_DEPARTMENTS } from '../constants/constants';
 import { pool } from '../db';
-import { generateDepartments } from '../generators/departmentGenerator';
-import { createDepartmentInsertStatement } from './insert/insertDepartment';
+import { generateAll } from '../generators/universityGenerator';
+import { createInsertStatement } from './insert/insertStatementCreator';
 
 export const importAllTables = async (): Promise<number> => {
     let conn;
     try {
         conn = await pool.getConnection();
+
         // Delete all rows from all tables
         await conn.query('SET FOREIGN_KEY_CHECKS = 0');
         await conn.query('DELETE FROM Enrollment');
@@ -23,12 +23,17 @@ export const importAllTables = async (): Promise<number> => {
         await conn.query('SET FOREIGN_KEY_CHECKS = 1');
 
         // Generate and insert data
-        const departments = generateDepartments(NUMBER_OF_DEPARTMENTS);
-        const { query, values } = createDepartmentInsertStatement(departments);
-        await conn.query(query, values);
-
+        const data = generateAll()
+        const insertStatements = Object.entries(data).map(([tableName, rows]) =>
+            createInsertStatement(tableName, rows)
+        );
+        var totalRows = 0;
+        for (const { query, values } of insertStatements) {
+            await conn.query(query, values);
+            totalRows += values.length;
+        }
         console.log('Departments imported successfully');
-        return departments.length;
+        return totalRows;
     } catch (error) {
         console.error('Failed to import data:', error);
         return 0;
