@@ -9,3 +9,16 @@ export const importTables = async (): Promise<any> => {
     const res = await axios.post(`${API_URL}/api/tables`);
     return res;
 };
+export const fetchAssignedStaff = async (courseIds: number[]) => {
+    try {
+        const res = await axios.get(`${API_URL}/api/staff/assigned`, {
+            params: {
+                courseIds: courseIds.join(','),
+            },
+        });
+        return res.data;
+    } catch (err) {
+        console.error('Failed to fetch assigned staff', err);
+        return {};
+    }
+};

@@ -1,15 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import TableDataGrid from './components/datagrid';
 import { tableColumns } from './data/columns';
 import Navbar from './components/navbar';
 import { Box } from '@mui/material';
-import { fetchTableData, importTables } from './api';
+import { fetchAssignedStaff, fetchTableData, importTables } from './api';
+import { getEnhancedColumns } from './utils/columnsDefinition';
+import type { EmployeeOption } from './types/types';
 
 export default function App() {
   const [selectedTable, setSelectedTable] = useState<string>('Department');
   const [loading, setLoading] = useState<boolean>(false);
   const [rows, setRows] = useState<any[]>([]);
-  const columns = tableColumns[selectedTable];
+  const [assignedStaffMap, setAssignedStaffMap] = useState<Record<number, EmployeeOption[]>>({});
+  const columns = useMemo(
+    () => getEnhancedColumns(selectedTable, assignedStaffMap),
+    [selectedTable, assignedStaffMap]
+  );
 
   const loadTable = async (tableName: string) => {
     setLoading(true);
@@ -43,6 +49,13 @@ export default function App() {
   const handleTableChange = (tableName: string) => {
     setSelectedTable(tableName);
   };
+
+  useEffect(() => {
+    if (selectedTable === 'Course') {
+      const courseIds = rows.map((row) => row.id);
+      fetchAssignedStaff(courseIds).then(setAssignedStaffMap);
+    }
+  }, [rows, selectedTable]);
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
