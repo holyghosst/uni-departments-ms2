@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import TableDataGrid from './components/datagrid';
 import { tableColumns } from './data/columns';
 import Navbar from './components/navbar';
 import { Box } from '@mui/material';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { fetchTableData, importTables } from './api';
 
 export default function App() {
   const [selectedTable, setSelectedTable] = useState<string>('Department');
@@ -13,11 +11,11 @@ export default function App() {
   const [rows, setRows] = useState<any[]>([]);
   const columns = tableColumns[selectedTable];
 
-  const fetchTableData = async (tableName: string) => {
+  const loadTable = async (tableName: string) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/api/tables/${tableName}`);
-      setRows(res.data);
+      const data = await fetchTableData(tableName);
+      setRows(data);
     } catch (err) {
       console.error(`Failed to fetch data for ${tableName}`, err);
       setRows([]);
@@ -25,22 +23,21 @@ export default function App() {
       setLoading(false);
     }
   };
-  const importTables = async () => {
+  const handleImport = async () => {
     try {
       console.log('Importing tables...');
-      const res = await axios.post(`${API_URL}/api/tables`);
+      const res = await importTables();
       console.log(res.data);
       if (res.status === 200) {
-        await fetchTableData(selectedTable);
+        await loadTable(selectedTable);
       }
     } catch (err) {
-      console.error(`Failed to import data`, err);
-      setRows([]);
+      console.error('Failed to import data', err);
     }
   };
 
   useEffect(() => {
-    fetchTableData(selectedTable);
+    loadTable(selectedTable);
   }, [selectedTable]);
 
   const handleTableChange = (tableName: string) => {
@@ -52,11 +49,11 @@ export default function App() {
       <Navbar
         tableNames={Object.keys(tableColumns)}
         onTableSelect={handleTableChange}
-        onImportClick={importTables}
+        onImportClick={handleImport}
         currentTitle={selectedTable.toUpperCase()}
       />
       <Box sx={{ flexGrow: 1 }}>
-        <TableDataGrid columns={columns} rows={rows} loading={loading} onImportClick={importTables} />
+        <TableDataGrid columns={columns} rows={rows} loading={loading} onImportClick={handleImport} />
       </Box>
     </Box>
   );
