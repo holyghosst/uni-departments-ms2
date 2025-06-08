@@ -15,6 +15,7 @@ const TableDataGrid: React.FC<TableDataGridProps> = ({ columns, rows, loading, o
     <Box sx={{ height: "100%", width: '100%' }}>
       <DataGrid
         rows={rows}
+        showToolbar
         columns={columns}
         loading={loading}
         disableRowSelectionOnClick
