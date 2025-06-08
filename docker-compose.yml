@@ -1,0 +1,30 @@
+services:
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    
+  backend:
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=example
+      - DB_NAME=mydb
+      - HOST=0.0.0.0
+    ports:
+      - "5000:5000"
+      
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_DATABASE: mydb
+      MARIADB_ROOT_PASSWORD: example
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d
