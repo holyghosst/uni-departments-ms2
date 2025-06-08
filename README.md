@@ -20,6 +20,16 @@ npm install
 npm run dev
 ```
 
+
+## 4. Docker
+Docker manages running both frontend and backend, as well as the database connection.
+
+To run locally:
+```
+docker compose up --build
+```
+The UI should be available at ```http://localhost:5173```.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
