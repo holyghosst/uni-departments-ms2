@@ -81,3 +81,38 @@ export const getStaffByDepartment = async (
         conn.release();
     }
 };
+
+
+export const assignStaffToCourse = async (courseId: number, professorIds: number[], assistantIds: number[]) => {
+    if (!courseId || professorIds.length === 0 && assistantIds.length === 0) return;
+    const deleteQueries = ['DELETE FROM Professor_Teaches_Course WHERE course_id = ?',
+                            'DELETE FROM Assistant_Assists_Course WHERE course_id = ?'];
+    const conn = await pool.getConnection();
+    try {
+        await conn.beginTransaction();
+        deleteQueries.forEach(async (query) => {
+            await conn.query(query, [courseId]);    
+        }
+        );
+        if (professorIds.length > 0) {
+            const data = professorIds.map(id => [id, courseId]);
+            await conn.batch(
+                'INSERT INTO Professor_Teaches_Course (professor_id, course_id) VALUES (?, ?)',
+                data
+            );
+        }
+        if (assistantIds.length > 0) {
+            const data = assistantIds.map(id => [id, courseId]);
+            await conn.batch(
+                'INSERT INTO Assistant_Assists_Course (assistant_id, course_id) VALUES (?, ?)',
+                data
+            );
+        }
+        await conn.commit();
+    } catch (err) {
+        await conn.rollback();
+        throw err;
+    } finally {
+        conn.release();
+    }
+};
