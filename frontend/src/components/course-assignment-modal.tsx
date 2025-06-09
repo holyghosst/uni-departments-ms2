@@ -1,23 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Box, Typography, Chip, TextField, Autocomplete, Tooltip } from '@mui/material';
-import { fetchDepartmentStaff } from '../api';
+import { assignStaffToCourse, fetchDepartmentStaff } from '../api';
 import type { AssistantOption, EmployeeOption } from '../types/types';
 interface Props {
     courseId: number;
     departmentId: number;
     assignedStaffMap: Record<number, EmployeeOption[]>;
+    onAssigned?: () => void;
 }
 
-const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assignedStaffMap }) => {
+const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assignedStaffMap, onAssigned }) => {
     const [open, setOpen] = useState(false);
     const [selectedProfessors, setSelectedProfessors] = useState<EmployeeOption[]>([]);
     const [selectedAssistants, setSelectedAssistants] = useState<AssistantOption[]>([]);
     const [availableProfessors, setAvailableProfessors] = useState<EmployeeOption[]>([]);
     const [availableAssistants, setAvailableAssistants] = useState<AssistantOption[]>([]);
-    const [assignedEmployees, setAssignedEmployees] = useState<EmployeeOption[]>([]);
+    const [assignedProfessors, setAssignedProfessors] = useState<EmployeeOption[]>([]);
+    const [assignedAssistants, setAssignedAssistants] = useState<AssistantOption[]>([]);
+
     useEffect(() => {
         const assigned = assignedStaffMap[courseId] || [];
-        setAssignedEmployees(assigned);
+        setAssignedProfessors(assigned.filter(e => e.role === 'Professor'));
+        setAssignedAssistants(assigned.filter(a => a.role === 'Assistant') as AssistantOption[]);
     }, [assignedStaffMap, courseId]);
 
     const handleOpen = () => {
@@ -52,11 +56,19 @@ const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assign
         setAvailableAssistants(assistants);
     };
 
-    const handleAssign = () => {
-        if (selectedProfessors.length > 0) {
-            setAssignedEmployees([...selectedProfessors, ...selectedAssistants]);
+    const handleAssign = async () => {
+        const professorIds = selectedProfessors.map(p => p.id);
+        const assistantIds = selectedAssistants.map(a => a.id);
+
+        try {
+            await assignStaffToCourse(courseId, professorIds, assistantIds);
+            setAssignedProfessors([...selectedProfessors]);
+            setAssignedAssistants([...selectedAssistants]);
+            handleClose();
+            onAssigned?.();
+        } catch (err) {
+
         }
-        handleClose();
     };
 
     const handleDelete = (id: number) => {
@@ -73,13 +85,28 @@ const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assign
             setSelectedAssistants(updatedAssistants);
         }
     };
-
-    const assignedNames = assignedEmployees.map(emp => emp.name).join(', ');
-    const displayLabel = assignedNames ?? 'ASSIGN STAFF';
+    const assignedEmployees = [...assignedProfessors, ...assignedAssistants];
+    const displayLabel = assignedEmployees.length > 0 ? assignedEmployees.map(emp => emp.name).join(', ') : 'ASSIGN STAFF';
+    const mergedProfessorsMap = new Map<number, EmployeeOption>();
+    assignedProfessors.forEach(p => mergedProfessorsMap.set(p.id, p));
+    availableProfessors.forEach(p => {
+        if (!mergedProfessorsMap.has(p.id)) {
+            mergedProfessorsMap.set(p.id, p);
+        }
+    });
+    const mergedProfessors = Array.from(mergedProfessorsMap.values());
+    const mergedAssistantsMap = new Map<number, AssistantOption>();
+    assignedAssistants.forEach(a => mergedAssistantsMap.set(a.id, a));
+    availableAssistants.forEach(a => {
+        if (!mergedAssistantsMap.has(a.id)) {
+            mergedAssistantsMap.set(a.id, a);
+        }
+    });
+    const mergedAssistants = Array.from(mergedAssistantsMap.values());
 
     return (
         <>
-            <Tooltip title={assignedNames ? 'Edit Assigned Staff' : 'Assign Staff'}>
+            <Tooltip title={assignedEmployees.length > 0 ? 'Edit Assigned Staff' : 'Assign Staff'}>
                 <Button variant="text" onClick={handleOpen} sx={{ width: '100%', textAlign: 'left', textTransform: 'none' }}>
                     <Box
                         sx={{
@@ -98,7 +125,7 @@ const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assign
                     <Autocomplete
                         multiple
                         disablePortal
-                        options={availableProfessors}
+                        options={mergedProfessors}
                         getOptionLabel={(option) => option.name}
                         onChange={(_, value) => setSelectedProfessors(value)}
                         value={selectedProfessors}
@@ -122,7 +149,7 @@ const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assign
                         multiple
                         disablePortal
                         disabled={selectedProfessors.length === 0}
-                        options={availableAssistants.filter(a =>
+                        options={mergedAssistants.filter(a =>
                             selectedProfessors.some(p => p.id === a.supervisorId)
                         )}
                         getOptionLabel={(option) => option.name}

@@ -13,7 +13,7 @@ export default function App() {
   const [rows, setRows] = useState<any[]>([]);
   const [assignedStaffMap, setAssignedStaffMap] = useState<Record<number, EmployeeOption[]>>({});
   const columns = useMemo(
-    () => getEnhancedColumns(selectedTable, assignedStaffMap),
+    () => getEnhancedColumns(selectedTable, assignedStaffMap, () => loadTable(selectedTable)),
     [selectedTable, assignedStaffMap]
   );
 
@@ -22,6 +22,10 @@ export default function App() {
     try {
       const data = await fetchTableData(tableName);
       setRows(data);
+      if (selectedTable === 'Course') {
+        const courseIds = rows.map((row) => row.id);
+        fetchAssignedStaff(courseIds).then(setAssignedStaffMap);
+      }
     } catch (err) {
       console.error(`Failed to fetch data for ${tableName}`, err);
       setRows([]);

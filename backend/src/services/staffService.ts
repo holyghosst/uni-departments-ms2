@@ -1,5 +1,6 @@
 import { pool } from '../db';
 import { MinimalEmployeeData, MinimalSupervisingEmployeeData } from '../models/models';
+import { transformToSupervisingStructure } from './utils/dataTransform';
 
 export const getAssignedStaffByCourses = async (courseIds: number[]) => {
     if (courseIds.length === 0) return {};
@@ -53,30 +54,7 @@ export const getStaffByDepartment = async (
     const conn = await pool.getConnection();
     try {
         const rows = await conn.query(query, [departmentId]);
-        // Matbe change to dictioanry in the future for faster lookups
-        // but for now, this is fine since the number of professors and assistants is usually small
-        const supervisors: MinimalSupervisingEmployeeData[] = [];
-        for (const row of rows) {
-            const { professor_id, professor_name, assistant_id, assistant_name } = row;
-            let supervisor = supervisors.find(p => p.id === professor_id);
-            if (!supervisor && professor_id && professor_name) {
-                supervisor = {
-                    id: professor_id,
-                    name: professor_name,
-                    role: 'Professor',
-                    subordinates: [],
-                };
-                supervisors.push(supervisor);
-            }
-            if (assistant_id && assistant_name && supervisor) {
-                supervisor.subordinates.push({
-                    id: assistant_id,
-                    name: assistant_name,
-                    role: 'Assistant',
-                });
-            }
-        }
-        return supervisors;
+        return transformToSupervisingStructure(rows);
     } finally {
         conn.release();
     }
@@ -84,24 +62,24 @@ export const getStaffByDepartment = async (
 
 
 export const assignStaffToCourse = async (courseId: number, professorIds: number[], assistantIds: number[]) => {
-    if (!courseId || professorIds.length === 0 && assistantIds.length === 0) return;
+    if (!courseId) return;
     const deleteQueries = ['DELETE FROM Professor_Teaches_Course WHERE course_id = ?',
-                            'DELETE FROM Assistant_Assists_Course WHERE course_id = ?'];
+        'DELETE FROM Assistant_Assists_Course WHERE course_id = ?'];
     const conn = await pool.getConnection();
     try {
         await conn.beginTransaction();
         deleteQueries.forEach(async (query) => {
-            await conn.query(query, [courseId]);    
+            await conn.query(query, [courseId]);
         }
         );
-        if (professorIds.length > 0) {
+        if (professorIds && professorIds.length > 0) {
             const data = professorIds.map(id => [id, courseId]);
             await conn.batch(
                 'INSERT INTO Professor_Teaches_Course (professor_id, course_id) VALUES (?, ?)',
                 data
             );
         }
-        if (assistantIds.length > 0) {
+        if (assistantIds && assistantIds.length > 0) {
             const data = assistantIds.map(id => [id, courseId]);
             await conn.batch(
                 'INSERT INTO Assistant_Assists_Course (assistant_id, course_id) VALUES (?, ?)',

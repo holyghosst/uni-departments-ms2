@@ -31,3 +31,16 @@ export const fetchDepartmentStaff = async (departmentId: number) => {
         return {};
     }
 };
+
+export const assignStaffToCourse = async (courseId: number, professorIds: number[], assistantIds: number[]) => {
+    try {
+        const res = await axios.put(`${API_URL}/api/staff/assign/${courseId}`, {
+            professorIds,
+            assistantIds
+        });
+        return res.data;
+    } catch (err) {
+        console.error('Failed to assign staff', err);
+        throw err;
+    }
+};
