@@ -3,3 +3,6 @@ export interface EmployeeOption {
     name: string;
     role: 'Professor' | 'Assistant';
 }
+export interface AssistantOption extends EmployeeOption {
+    supervisorId: number;
+}

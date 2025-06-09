@@ -22,3 +22,25 @@ export const fetchAssignedStaff = async (courseIds: number[]) => {
         return {};
     }
 };
+export const fetchDepartmentStaff = async (departmentId: number) => {
+    try {
+        const res = await axios.get(`${API_URL}/api/staff/department/${departmentId}`);
+        return res.data;
+    } catch (err) {
+        console.error('Failed to fetch assigned staff', err);
+        return {};
+    }
+};
+
+export const assignStaffToCourse = async (courseId: number, professorIds: number[], assistantIds: number[]) => {
+    try {
+        const res = await axios.put(`${API_URL}/api/staff/assign/${courseId}`, {
+            professorIds,
+            assistantIds
+        });
+        return res.data;
+    } catch (err) {
+        console.error('Failed to assign staff', err);
+        throw err;
+    }
+};

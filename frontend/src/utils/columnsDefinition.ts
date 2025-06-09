@@ -6,7 +6,8 @@ import { tableColumns } from '../data/columns';
 
 export function getEnhancedColumns(
     selectedTable: string,
-    assignedStaffMap: Record<number, { id: number; name: string; role: "Professor" | "Assistant" }[]>
+    assignedStaffMap: Record<number, { id: number; name: string; role: "Professor" | "Assistant", }[]>,
+    onAssigned?: () => void
 ): GridColDef[] {
     const columns = tableColumns[selectedTable] || [];
     if (selectedTable === 'Course') {
@@ -23,6 +24,7 @@ export function getEnhancedColumns(
                         courseId: params.row.id,
                         departmentId: params.row.department_id,
                         assignedStaffMap: assignedStaffMap,
+                        onAssigned,
                     }),
             },
         ];
