@@ -55,12 +55,22 @@ const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assign
         setAssignedEmployees(prev => prev.filter(emp => emp.id !== id));
     };
     const assignedNames = assignedEmployees.map(emp => emp.name).join(', ');
-    const displayLabel = assignedNames.length > 30 ? assignedNames.slice(0, 30) + '...' : assignedNames || 'Assign Staff';
+    const displayLabel = assignedNames ?? 'ASSIGN STAFF';
 
     return (
         <>
-            <Tooltip title={assignedNames}>
-                <Button variant="text" onClick={handleOpen}>{displayLabel}</Button>
+            <Tooltip title={assignedNames ? 'Edit Assigned Staff' : 'Assign Staff'}>
+                <Button variant="text" onClick={handleOpen} sx={{ width: '100%', textAlign: 'left', textTransform: 'none' }}>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                        }}
+                    >
+                        {displayLabel}
+                    </Box>
+                </Button>
             </Tooltip>
             <Modal open={open} onClose={handleClose}>
                 <Box sx={{ p: 4, backgroundColor: 'white', maxWidth: 500, margin: 'auto', mt: '10%' }}>
