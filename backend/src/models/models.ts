@@ -56,8 +56,11 @@ export interface Enrollment {
     student_id: number;
     course_id: number;
 }
-export interface MinimalEployeeData {
+export interface MinimalEmployeeData {
     id: number;
     name: string;
     role: 'Professor' | 'Assistant';
+}
+export interface MinimalSupervisingEmployeeData extends MinimalEmployeeData {
+    subordinates: MinimalEmployeeData[];
 }

@@ -22,3 +22,12 @@ export const fetchAssignedStaff = async (courseIds: number[]) => {
         return {};
     }
 };
+export const fetchDepartmentStaff = async (departmentId: number) => {
+    try {
+        const res = await axios.get(`${API_URL}/api/staff/department/${departmentId}`);
+        return res.data;
+    } catch (err) {
+        console.error('Failed to fetch assigned staff', err);
+        return {};
+    }
+};

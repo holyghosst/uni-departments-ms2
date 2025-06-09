@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Box, Typography, Chip, TextField, Autocomplete, Stack, Tooltip } from '@mui/material';
-import type { EmployeeOption } from '../types/types';
-
-interface AssistantOption extends EmployeeOption {
-    supervisorId: number;
-}
+import { Button, Modal, Box, Typography, Chip, TextField, Autocomplete, Tooltip } from '@mui/material';
+import { fetchDepartmentStaff } from '../api';
+import type { AssistantOption, EmployeeOption } from '../types/types';
 interface Props {
     courseId: number;
     departmentId: number;
@@ -13,10 +10,10 @@ interface Props {
 
 const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assignedStaffMap }) => {
     const [open, setOpen] = useState(false);
-    const [selectedProfessor, setSelectedProfessor] = useState<EmployeeOption | null>(null);
+    const [selectedProfessors, setSelectedProfessors] = useState<EmployeeOption[]>([]);
+    const [selectedAssistants, setSelectedAssistants] = useState<AssistantOption[]>([]);
     const [availableProfessors, setAvailableProfessors] = useState<EmployeeOption[]>([]);
     const [availableAssistants, setAvailableAssistants] = useState<AssistantOption[]>([]);
-    const [selectedAssistants, setSelectedAssistants] = useState<AssistantOption[]>([]);
     const [assignedEmployees, setAssignedEmployees] = useState<EmployeeOption[]>([]);
     useEffect(() => {
         const assigned = assignedStaffMap[courseId] || [];
@@ -25,35 +22,58 @@ const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assign
 
     const handleOpen = () => {
         setOpen(true);
+        const assigned = assignedStaffMap[courseId] || [];
+        setSelectedProfessors(assigned.filter(e => e.role === 'Professor'));
+        setSelectedAssistants(assigned.filter(a => a.role === 'Assistant') as AssistantOption[]);
         fetchData();
     };
     const handleClose = () => {
         setOpen(false);
-        setSelectedProfessor(null);
+        setSelectedProfessors([]);
         setSelectedAssistants([]);
     };
     const fetchData = async () => {
-        // TODO pi that fetches professors and assistants from the backend wth the departmentId
-        const profs: EmployeeOption[] = [
-            { id: 1, name: 'Prof. Alice', role: "Professor" },
-            { id: 2, name: 'Prof. Bob', role: "Professor" },
-        ];
-        const assts: AssistantOption[] = [
-            { id: 3, name: 'Assistant Eve', supervisorId: 1, role: "Assistant" },
-            { id: 4, name: 'Assistant Dan', supervisorId: 2, role: "Assistant" },
-        ];
-        setAvailableProfessors(profs);
-        setAvailableAssistants(assts);
+        const departmentStaff = await fetchDepartmentStaff(departmentId);
+        const professors = departmentStaff.map((prof: any) => ({
+            id: prof.id,
+            name: prof.name,
+            role: 'Professor' as const,
+        }));
+
+        const assistants = departmentStaff.flatMap((prof: any) =>
+            (prof.subordinates || []).map((asst: any) => ({
+                id: asst.id,
+                name: asst.name,
+                role: 'Assistant' as const,
+                supervisorId: prof.id,
+            }))
+        );
+        setAvailableProfessors(professors);
+        setAvailableAssistants(assistants);
     };
 
     const handleAssign = () => {
-        if (selectedProfessor) setAssignedEmployees([selectedProfessor, ...selectedAssistants]);
+        if (selectedProfessors.length > 0) {
+            setAssignedEmployees([...selectedProfessors, ...selectedAssistants]);
+        }
         handleClose();
     };
 
     const handleDelete = (id: number) => {
-        setAssignedEmployees(prev => prev.filter(emp => emp.id !== id));
+        const isProf = selectedProfessors.some(p => p.id === id);
+        if (isProf) {
+            const updatedProfessors = selectedProfessors.filter(p => p.id !== id);
+            setSelectedProfessors(updatedProfessors);
+            //console.log('updatedProfessors professor:', updatedProfessors);
+            const updatedAssistants = selectedAssistants.filter(a => a.supervisorId !== id);
+            //console.log('updatedAssistants:', updatedAssistants);
+            setSelectedAssistants(updatedAssistants);
+        } else {
+            const updatedAssistants = selectedAssistants.filter(a => a.id !== id);
+            setSelectedAssistants(updatedAssistants);
+        }
     };
+
     const assignedNames = assignedEmployees.map(emp => emp.name).join(', ');
     const displayLabel = assignedNames ?? 'ASSIGN STAFF';
 
@@ -76,32 +96,55 @@ const CourseAssignmentModal: React.FC<Props> = ({ courseId, departmentId, assign
                 <Box sx={{ p: 4, backgroundColor: 'white', maxWidth: 500, margin: 'auto', mt: '10%' }}>
                     <Typography variant="h6" gutterBottom>Assign Employees to Course</Typography>
                     <Autocomplete
+                        multiple
                         disablePortal
                         options={availableProfessors}
                         getOptionLabel={(option) => option.name}
-                        onChange={(_, value) => setSelectedProfessor(value)}
-                        renderInput={(params) => <TextField {...params} label="Professor" variant="outlined" />}
+                        onChange={(_, value) => setSelectedProfessors(value)}
+                        value={selectedProfessors}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => {
+                                const { key, ...tagProps } = getTagProps({ index });
+                                return (
+                                    <Chip
+                                        key={option.id}
+                                        label={`${option.name}`}
+                                        {...tagProps}
+                                        onDelete={() => handleDelete(option.id)}
+                                    />
+                                );
+                            })
+                        }
+                        renderInput={(params) => <TextField {...params} label="Professors" variant="outlined" />}
                     />
+
                     <Autocomplete
-                        disablePortal
                         multiple
-                        disabled={!selectedProfessor}
-                        options={availableAssistants.filter(a => a.supervisorId === selectedProfessor?.id)}
+                        disablePortal
+                        disabled={selectedProfessors.length === 0}
+                        options={availableAssistants.filter(a =>
+                            selectedProfessors.some(p => p.id === a.supervisorId)
+                        )}
                         getOptionLabel={(option) => option.name}
                         onChange={(_, value) => setSelectedAssistants(value)}
+                        value={selectedAssistants}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => {
+                                const { key, ...tagProps } = getTagProps({ index });
+                                const supervisor = selectedProfessors.find(p => p.id === option.supervisorId);
+                                return (
+                                    <Chip
+                                        key={option.id}
+                                        label={`${option.name} ${supervisor ? '(' + supervisor.name + ')' : ''}`}
+                                        {...tagProps}
+                                        onDelete={() => handleDelete(option.id)}
+                                    />
+                                );
+                            })
+                        }
                         renderInput={(params) => <TextField {...params} label="Assistants" variant="outlined" />}
                         sx={{ mt: 2 }}
                     />
-                    <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap' }}>
-                        {assignedEmployees.map(emp => (
-                            <Chip
-                                key={emp.id}
-                                label={`${emp.name} (${emp.role})`}
-                                variant="outlined"
-                                onDelete={() => handleDelete(emp.id)}
-                            />
-                        ))}
-                    </Stack>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
                         <Button onClick={handleClose}>Cancel</Button>
                         <Button variant="contained" onClick={handleAssign}>Save</Button>
