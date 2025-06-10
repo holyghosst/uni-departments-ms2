@@ -6,16 +6,25 @@ import { Box } from '@mui/material';
 import { fetchAssignedStaff, fetchTableData, importTables } from './api';
 import { getEnhancedColumns } from './utils/columnsDefinition';
 import type { EmployeeOption } from './types/types';
+import { getExamColumns } from './utils/examColumnsDefinition';
+
+
 
 export default function App() {
   const [selectedTable, setSelectedTable] = useState<string>('Department');
   const [loading, setLoading] = useState<boolean>(false);
   const [rows, setRows] = useState<any[]>([]);
   const [assignedStaffMap, setAssignedStaffMap] = useState<Record<number, EmployeeOption[]>>({});
-  const columns = useMemo(
-    () => getEnhancedColumns(selectedTable, assignedStaffMap, () => loadTable(selectedTable)),
-    [selectedTable, assignedStaffMap]
-  );
+  const columns = useMemo(() => {
+    if (selectedTable === "Course") {
+      return getEnhancedColumns(selectedTable, assignedStaffMap, () => loadTable(selectedTable));
+    }
+    if (selectedTable === "Exam") {
+      return getExamColumns(selectedTable, () => loadTable(selectedTable));
+    }
+    return tableColumns[selectedTable] || [];
+  }, [selectedTable, assignedStaffMap]);
+
 
   const loadTable = async (tableName: string) => {
     setLoading(true);

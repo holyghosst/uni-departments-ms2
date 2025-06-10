@@ -44,3 +44,13 @@ export const assignStaffToCourse = async (courseId: number, professorIds: number
         throw err;
     }
 };
+
+
+export const updateExamDate = async (examId: number, date: string): Promise<void> => {
+    try {
+        await axios.put(`${API_URL}/api/exams/${examId}/date`, { date });
+    } catch(error) {
+        console.error("Failed to update exam date:", error);
+        return;
+    }
+};

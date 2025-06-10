@@ -1,13 +1,15 @@
-import { Tooltip, Button, Box, Modal, Typography} from "@mui/material";
+import { Tooltip, Button, Box, Modal, Typography } from "@mui/material";
 import React, { useState } from "react"
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import dayjs, { Dayjs } from "dayjs";
+import { updateExamDate } from "../api";
 
 interface Props {
     examId: number;
     currentDate: Date;
+    onUpdated?: () => void;
 }
 
 const formatDate = (date: Date): string => {
@@ -17,7 +19,7 @@ const formatDate = (date: Date): string => {
     return `${day}/${month}/${year}`;
 };
 
-const ExamDateUpdateModal: React.FC<Props> = ({ examId, currentDate }) => {
+const ExamDateUpdateModal: React.FC<Props> = ({ examId, currentDate, onUpdated }) => {
     const [selectedDate, setSelectedDate] = useState<Dayjs | null>(() => dayjs(currentDate));
 
     const [open, setOpen] = useState(false);
@@ -27,11 +29,13 @@ const ExamDateUpdateModal: React.FC<Props> = ({ examId, currentDate }) => {
 
     const handleSave = async () => {
         if (!selectedDate) return;
-        const formatted = selectedDate.format("YYYY-MM-DD");
+        const formattedDate = selectedDate.format("YYYY-MM-DD");
 
         try {
-            // update
+            await updateExamDate(examId, formattedDate);
+            setSelectedDate(dayjs(formattedDate));
             handleClose();
+            onUpdated?.();
         } catch (err) {
             console.error("Failed to update exam date:", err);
         }
@@ -58,11 +62,11 @@ const ExamDateUpdateModal: React.FC<Props> = ({ examId, currentDate }) => {
                     </Typography>
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateCalendar value={selectedDate} onChange={(newDate) => setSelectedDate(newDate)} />
+                        <DateCalendar value={selectedDate} disablePast onChange={(newDate) => setSelectedDate(newDate)} />
                     </LocalizationProvider>
 
                     <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 4 }}>
-                        <Button onClick={handleSave}>Close</Button>
+                        <Button variant="contained" onClick={handleSave}>Save</Button>
                     </Box>
                 </Box>
             </Modal>
