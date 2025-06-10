@@ -12,12 +12,14 @@ export function getExamColumns(selectedTable: string, onUpdated?: () => void): G
                 ? {
                     ...col,
                     renderCell: (params) => {
+                        const id = params.row.id
                         const rowDate = params.row.date;
                         if (!rowDate) return null; // first load with NaNs
                         return React.createElement(ExamDateUpdateModal, {
                             examId: params.row.id,
                             currentDate: params.value,
                             onUpdated,
+                            key: `${id}-${rowDate}` //for the reload after new import
                         });
                     },
                 }
