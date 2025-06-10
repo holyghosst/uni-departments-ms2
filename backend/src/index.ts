@@ -3,6 +3,7 @@ import cors from 'cors';
 import tableRoutes from './routes/tableRoutes';
 import dotenv from 'dotenv';
 import staffRoutes from './routes/staffRoutes';
+import examRoutes from './routes/examRoutes';
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use('/api/tables', tableRoutes);
 app.use('/api/staff', staffRoutes);
+app.use("/api/exams", examRoutes);
 
 const HOST = process.env.HOST || 'localhost';
 const PORT = Number(process.env.PORT) || 5000;
