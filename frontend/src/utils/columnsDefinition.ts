@@ -1,6 +1,5 @@
 import type { GridColDef } from '@mui/x-data-grid';
 import CourseAssignmentModal from '../components/course-assignment-modal';
-import ExamDateUpdateModal from '../components/exam-date-update-modal';
 import React from 'react';
 import { tableColumns } from '../data/columns';
 
@@ -29,23 +28,5 @@ export function getEnhancedColumns(
             },
         ];
     }
-
-    if (selectedTable === "Exam") {
-        return columns.map((col) =>
-            col.field === "date"
-                ? {
-                    ...col,
-                    renderCell: (params) => {
-                        return React.createElement(ExamDateUpdateModal, {
-                            examId: params.row.id,
-                            currentDate: params.value, 
-                        });
-                    },
-                }
-                : col
-        );
-    }
-
-
     return columns;
 }
