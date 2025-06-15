@@ -6,6 +6,8 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import dayjs, { Dayjs } from "dayjs";
 import { updateExamDate } from "../api";
 
+import ExamAnalyticsModal from "./exam-analytics-modal";
+
 interface Props {
     examId: number;
     currentDate: Date;
@@ -19,8 +21,11 @@ const formatDate = (date: Date): string => {
     return `${day}/${month}/${year}`;
 };
 
+
 const ExamDateUpdateModal: React.FC<Props> = ({ examId, currentDate, onUpdated }) => {
     const [selectedDate, setSelectedDate] = useState<Dayjs | null>(() => dayjs(currentDate));
+
+    const [analyticsOpen, setAnalyticsOpen] = useState(false);
 
     const [open, setOpen] = useState(false);
 
@@ -38,6 +43,16 @@ const ExamDateUpdateModal: React.FC<Props> = ({ examId, currentDate, onUpdated }
             onUpdated?.();
         } catch (err) {
             console.error("Failed to update exam date:", err);
+        }
+    };
+
+    const handleQuickSave = async () => {
+        try {
+             if (!selectedDate) return;
+            const formattedDate = selectedDate.format("YYYY-MM-DD");
+            await updateExamDate(examId, formattedDate);
+        } catch (err) {
+            console.error("Quick save failed:", err);
         }
     };
 
@@ -65,11 +80,27 @@ const ExamDateUpdateModal: React.FC<Props> = ({ examId, currentDate, onUpdated }
                         <DateCalendar value={selectedDate} disablePast onChange={(newDate) => setSelectedDate(newDate)} />
                     </LocalizationProvider>
 
+                    <Box sx={{ mt: 2 }}>
+                        <Button size="small" onClick={() => setAnalyticsOpen(true)}>
+                            View Monthly Analytics
+                        </Button>
+                    </Box>
+
                     <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 4 }}>
-                        <Button variant="contained" onClick={handleSave}>Save</Button>
+                        <Button variant="outlined" onClick={handleQuickSave}>
+                            Save Without Closing
+                        </Button>
+                        <Button variant="contained" onClick={handleSave}>
+                            Save & Close
+                        </Button>
                     </Box>
                 </Box>
             </Modal>
+
+            <ExamAnalyticsModal
+                open={analyticsOpen}
+                onClose={() => setAnalyticsOpen(false)}
+            />
         </>
     );
 };

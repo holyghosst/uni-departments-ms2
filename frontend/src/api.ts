@@ -49,17 +49,17 @@ export const assignStaffToCourse = async (courseId: number, professorIds: number
 export const updateExamDate = async (examId: number, date: string): Promise<void> => {
     try {
         await axios.put(`${API_URL}/api/exams/${examId}/date`, { date });
-    } catch(error) {
+    } catch (error) {
         console.error("Failed to update exam date:", error);
         return;
     }
 };
 
-export const fetchExamAnalytics = async(month: number) => {
+export const fetchExamAnalytics = async (month: number) => {
     try {
-        const res = await axios.get(`${API_URL}/api/exams/stats/${month}`);
+        const res = await axios.get(`${API_URL}/api/exams/stats/${month}`,);
         return res.data;
-    } catch(error) {
+    } catch (error) {
         console.error("Failed to fetch exam analytics", error);
         return {};
     }
