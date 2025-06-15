@@ -55,12 +55,12 @@ export const updateExamDate = async (examId: number, date: string): Promise<void
     }
 };
 
-export const fetchExamAnalytics = async (month: number) => {
+export const fetchExamAnalytics = async (month: number, departmentId: number) => {
     try {
-        const res = await axios.get(`${API_URL}/api/exams/stats/${month}`,);
+        const res = await axios.get(`${API_URL}/api/exams/stats/${month}/${departmentId}`);
         return res.data;
     } catch (error) {
         console.error("Failed to fetch exam analytics", error);
-        return {};
+        return [];
     }
 };
