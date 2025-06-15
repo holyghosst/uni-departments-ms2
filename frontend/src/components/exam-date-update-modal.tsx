@@ -51,6 +51,7 @@ const ExamDateUpdateModal: React.FC<Props> = ({ examId, currentDate, onUpdated }
              if (!selectedDate) return;
             const formattedDate = selectedDate.format("YYYY-MM-DD");
             await updateExamDate(examId, formattedDate);
+            setSelectedDate(dayjs(formattedDate));
         } catch (err) {
             console.error("Quick save failed:", err);
         }

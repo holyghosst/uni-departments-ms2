@@ -65,7 +65,7 @@ export const tableColumns: Record<string, GridColDef[]> = {
       field: 'date',
       headerName: 'Date',
       type: 'date',
-      valueGetter: (value, row) => new Date(row.date),
+      valueGetter: (value) => new Date(value),
       flex: 1
     },
     { field: 'ECTS', headerName: 'ECTS', type: 'number', flex: 1 },
