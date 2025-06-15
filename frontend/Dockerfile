@@ -1,10 +1,11 @@
-FROM node:24-slim
+FROM node:24-slim AS builder
 
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+RUN npm run build
 
-EXPOSE 5173
-
-CMD ["npm", "run", "dev", "--", "--host"]
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
