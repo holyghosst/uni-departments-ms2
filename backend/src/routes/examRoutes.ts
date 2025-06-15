@@ -5,6 +5,7 @@ import { fetchExamAnalytics, updateExamDate } from "../controllers/examControlle
 const router = Router();
 
 router.put("/:id/date", updateExamDate);
-router.get("/stats/:month", fetchExamAnalytics);
+router.get("/stats/:month/:departmentId", fetchExamAnalytics);
+
 
 export default router;

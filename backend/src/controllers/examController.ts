@@ -19,21 +19,22 @@ export const updateExamDate = async (req: Request, res: Response) => {
 
 export const fetchExamAnalytics = async (req: Request, res: Response) => {
     try {
-        const month = req.params.month ? Number(req.params.month) : undefined;
+        const month = Number(req.params.month);
+        const departmentId = Number(req.params.departmentId);
 
-        if (!month || month < 1 || month > 12) {
-            res.status(400).json({ error: "Invalid or missing month" });
+        if (!month || !departmentId) {
+            res.status(400).json({ error: "Invalid or missing parameters" });
         }
-        const stats = await getExamAnalytics(month);
+        const stats = await getExamAnalytics(month, departmentId);
         res.status(200).json(
             stats.map((row: { total_exams: any; }) => ({
                 ...row,
                 total_exams: Number(row.total_exams),
             }))
         );
-
     } catch (error) {
         console.error("Error fetching exam stats:", error);
         res.status(500).json({ error: "Server error" });
     }
 };
+
